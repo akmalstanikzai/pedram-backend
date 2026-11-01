@@ -93,4 +93,4 @@ docker compose exec db psql -U app -d app -c 'SELECT * FROM tasks;'
 
 The backend uses JavaScript and CommonJS, so you can learn Drizzle without converting the app to TypeScript first. If you move to TypeScript later, the schema can also provide compile-time query types.
 
-The package registry was unavailable in the environment that created this example, so Drizzle dependencies and a new lockfile could not be installed here. Docker installs the exact direct versions declared in `package.json` when network access is available. After the first successful install, commit the generated `package-lock.json` and change the Dockerfile and Compose install commands to `npm ci` for reproducible transitive dependencies.
+Docker uses `package-lock.json` and `npm ci` to install recorded dependency versions. Commit the lockfile with the source. When you change `package.json`, regenerate and commit the lockfile with it.
