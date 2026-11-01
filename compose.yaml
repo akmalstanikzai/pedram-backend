@@ -1,0 +1,49 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app_dev_password
+      POSTGRES_DB: app
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d app"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgres://app:app_dev_password@db:5432/app
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - api_node_modules:/app/node_modules
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh -c "npm install && npm run dev"
+
+  studio:
+    profiles: ["studio"]
+    build: .
+    environment:
+      DATABASE_URL: postgres://app:app_dev_password@db:5432/app
+    ports:
+      - "127.0.0.1:4983:4983"
+    volumes:
+      - .:/app
+      - studio_node_modules:/app/node_modules
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh -c "npm install --package-lock=false && npm run db:studio"
+
+volumes:
+  postgres_data:
+  api_node_modules:
+  studio_node_modules:
